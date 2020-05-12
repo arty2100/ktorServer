@@ -107,12 +107,7 @@ fun Application.module(testing: Boolean = false) {
 
 
     runBlocking {
-        // Sample for making a HTTP Client request
-//        val message = client.post<JsonSampleClass> {
-//            url("http://127.0.0.1:8080/path/to/endpoint")
-//            contentType(ContentType.Application.Json)
-//            body = JsonSampleClass(hello = "world")
-//        }
+
         launch {
             val posts = withContext(Dispatchers.IO) {
                 client.get<MutableList<PostModel>>(posts_url)
