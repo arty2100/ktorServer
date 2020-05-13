@@ -18,22 +18,25 @@ class PostMutexRepository() : PostRepository {
 
 
     override suspend fun save(item: PostModel): PostModel =
-        mutex.withLock {
-            when (val index = posts.indexOfFirst { it.id == item.id }) {
-                -1 -> {
-                    val copy = item.copy(id = nextId++)
-                    posts.add(copy)
-                    copy
-                }
-                else -> {
-                    posts[index] = item
-                    item
+            mutex.withLock {
+                when (val index = posts.indexOfFirst { it.id == item.id }) {
+                    -1 -> {
+                        val copy = item.copy(id = nextId++)
+                        posts.add(copy)
+                        copy
+                    }
+                    else -> {
+                        posts[index] = item
+                        item
+                    }
                 }
             }
-        }
 
     override suspend fun removeById(id: Long) {
-        TODO("Not yet implemented")
+
+        mutex.withLock {
+            posts.remove(posts.find { it.id == id })
+        }
     }
 
     override suspend fun likeById(id: Long): PostModel? {
