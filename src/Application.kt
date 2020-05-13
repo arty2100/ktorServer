@@ -76,6 +76,14 @@ fun Application.module(testing: Boolean = false) {
             call.respond(HttpStatusCode.Forbidden)
             throw cause
         }
+        exception<ParameterConversionException> { cause ->
+            call.respond(HttpStatusCode.BadRequest)
+            throw cause
+        }
+        exception<NotFoundException> { cause ->
+            call.respond(HttpStatusCode.NotFound)
+            throw cause
+        }
 
     }
 
