@@ -39,8 +39,16 @@ class PostMutexRepository() : PostRepository {
         }
     }
 
-    override suspend fun likeById(id: Long): PostModel? {
-        TODO("Not yet implemented")
+    override suspend fun like(item: PostModel): PostModel = mutex.withLock {
+
+        if (!item.likedByMe) {
+            item.likes++
+            item.likedByMe = true
+        } else {
+            item.likes--
+            item.likedByMe = false
+        }
+        item
     }
 
     override suspend fun dislikeById(id: Long): PostModel? {

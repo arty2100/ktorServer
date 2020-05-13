@@ -127,6 +127,12 @@ fun Application.module(testing: Boolean = false) {
                 val model = repo.save(modelToSave)
                 call.respond(PostResponseDto.fromModel(model))
             }
+            post("/like/{id}") {
+                val id = call.parameters["id"]?.toLongOrNull() ?: throw ParameterConversionException("id", "Long")
+                val model = repo.getById(id) ?: throw NotFoundException()
+                call.respond(PostResponseDto.fromModel(repo.like(model)))
+            }
+
             delete("/{id}") {
                 val id = call.parameters["id"]?.toLongOrNull() ?: throw ParameterConversionException("id", "Long")
                 val model = repo.getById(id) ?: throw NotFoundException()
