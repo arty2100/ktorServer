@@ -5,81 +5,48 @@ import com.galaktionov.dto.PostResponseDto
 import com.galaktionov.firstandroidapp.dto.PostModel
 import com.galaktionov.repository.PostMutexRepository
 import com.galaktionov.repository.PostRepository
-import com.google.gson.Gson
-import io.ktor.application.*
-import io.ktor.response.*
-import io.ktor.request.*
-import io.ktor.routing.*
-import io.ktor.http.*
-import io.ktor.features.*
-import io.ktor.gson.*
-import io.ktor.client.*
-import io.ktor.client.engine.cio.*
-import io.ktor.client.features.json.*
-import kotlinx.coroutines.*
-import io.ktor.client.features.logging.*
+import io.ktor.application.Application
+import io.ktor.application.call
+import io.ktor.application.install
+import io.ktor.client.HttpClient
+import io.ktor.client.engine.cio.CIO
+import io.ktor.client.features.json.GsonSerializer
+import io.ktor.client.features.json.JsonFeature
+import io.ktor.client.features.logging.LogLevel
+import io.ktor.client.features.logging.Logging
 import io.ktor.client.request.get
-import io.ktor.client.request.post
-import io.ktor.client.request.url
+import io.ktor.features.ContentNegotiation
+import io.ktor.features.NotFoundException
+import io.ktor.features.ParameterConversionException
+import io.ktor.features.StatusPages
+import io.ktor.gson.gson
+import io.ktor.http.ContentType
+import io.ktor.http.HttpStatusCode
+import io.ktor.request.receive
+import io.ktor.response.respond
+import io.ktor.routing.get
+import io.ktor.routing.post
+import io.ktor.routing.route
+import io.ktor.routing.routing
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 import org.kodein.di.generic.bind
 import org.kodein.di.generic.instance
 import org.kodein.di.generic.singleton
 import org.kodein.di.ktor.KodeinFeature
 import org.kodein.di.ktor.kodein
-import kotlin.coroutines.EmptyCoroutineContext
 
 const val posts_url = "https://raw.githubusercontent.com/arty2100/gson/master/posts.json"
 const val adv_posts_url = "https://raw.githubusercontent.com/arty2100/gson/master/adv_posts.json"
 
 var allPosts: MutableList<PostModel> = emptyList<PostModel>().toMutableList()
-private fun prepareList(): MutableList<PostModel> = mutableListOf(
-
-    PostModel(
-        1L,
-        "Google",
-        "Try the best search engine!",
-        1523496778000,
-        true,
-        5,
-        1,
-        0,
-        postTpe = PostModel.POST_TYPE.ADV,
-        advLink = "http://www.google.com",
-        companyImg = "https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/Google_%22G%22_Logo.svg/1004px-Google_%22G%22_Logo.svg.png"
-    ),
-    PostModel(
-        15L,
-        "Google",
-        "Try the best search engine!",
-        1523496778000,
-        true,
-        5,
-        1,
-        0,
-        postTpe = PostModel.POST_TYPE.ADV,
-        advLink = "http://www.google.com",
-        companyImg = "https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/Google_%22G%22_Logo.svg/1004px-Google_%22G%22_Logo.svg.png"
-    ),
-    PostModel(
-        10L,
-        "Google",
-        "Try the best search engine!",
-        1523496778000,
-        true,
-        5,
-        1,
-        0,
-        postTpe = PostModel.POST_TYPE.ADV,
-        advLink = "http://www.google.com",
-        companyImg = "https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/Google_%22G%22_Logo.svg/1004px-Google_%22G%22_Logo.svg.png"
-    )
-)
 
 fun main(args: Array<String>): Unit = io.ktor.server.netty.EngineMain.main(args)
 
 
 fun Application.module(testing: Boolean = false) {
-    val posts = prepareList()
 
     val client = HttpClient(CIO) {
 
