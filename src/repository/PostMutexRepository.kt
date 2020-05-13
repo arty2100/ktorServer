@@ -51,7 +51,4 @@ class PostMutexRepository() : PostRepository {
         item
     }
 
-    override suspend fun dislikeById(id: Long): PostModel? {
-        TODO("Not yet implemented")
-    }
 }
