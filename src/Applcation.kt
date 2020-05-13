@@ -3,6 +3,7 @@ package com.galaktionov
 import com.galaktionov.dto.PostRequestDto
 import com.galaktionov.dto.PostResponseDto
 import com.galaktionov.firstandroidapp.dto.PostModel
+import com.galaktionov.model.ErrorModel
 import com.galaktionov.repository.PostMutexRepository
 import com.galaktionov.repository.PostRepository
 import io.ktor.application.Application
@@ -55,8 +56,8 @@ fun Application.module(testing: Boolean = false) {
         }
         install(JsonFeature) {
             acceptContentTypes = listOf(
-                ContentType.Text.Plain,
-                ContentType.Application.Json
+                    ContentType.Text.Plain,
+                    ContentType.Application.Json
             )
             serializer = GsonSerializer()
         }
@@ -77,12 +78,13 @@ fun Application.module(testing: Boolean = false) {
             throw cause
         }
         exception<ParameterConversionException> { cause ->
-            call.respond(HttpStatusCode.BadRequest)
+            val error = ErrorModel(HttpStatusCode.BadRequest.value, HttpStatusCode.BadRequest.description, cause.toString())
+            call.respond(error)
             throw cause
         }
         exception<NotFoundException> { cause ->
-            call.respond(HttpStatusCode.NotFound)
-            throw cause
+            val error = ErrorModel(HttpStatusCode.NotFound.value, HttpStatusCode.NotFound.description, cause.toString())
+            call.respond(error)
         }
 
     }
@@ -107,7 +109,7 @@ fun Application.module(testing: Boolean = false) {
             PostMutexRepository().apply {
                 allPosts.forEach {
                     runBlocking {
-                        save(PostModel(it.id, it.author, it.content,it.created,it.likedByMe,it.likes,it.comments,it.shares,it.address,it.location,it.videoUrl,it.postTpe,it.advLink,it.companyImg))
+                        save(PostModel(it.id, it.author, it.content, it.created, it.likedByMe, it.likes, it.comments, it.shares, it.address, it.location, it.videoUrl, it.postTpe, it.advLink, it.companyImg))
                     }
                 }
             }
@@ -130,9 +132,9 @@ fun Application.module(testing: Boolean = false) {
             }
             post {
                 val request = call.receive<PostRequestDto>()
-                val model = PostModel( null,request.author, request.content,request.created,request.likedByMe,request.likes,request.comments,request.shares,request.address,request.location,request.videoUrl,request.postTpe,request.advLink,request.companyImg)
-                val response = repo.save(model)
-                call.respond(response)
+                val modelToSave = PostModel(null, request.author, request.content, request.created, request.likedByMe, request.likes, request.comments, request.shares, request.address, request.location, request.videoUrl, request.postTpe, request.advLink, request.companyImg)
+                val model = repo.save(modelToSave)
+                call.respond(PostResponseDto.fromModel(model))
             }
         }
     }
