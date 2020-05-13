@@ -3,6 +3,8 @@ package com.galaktionov
 import com.galaktionov.dto.PostRequestDto
 import com.galaktionov.dto.PostResponseDto
 import com.galaktionov.firstandroidapp.dto.PostModel
+import com.galaktionov.repository.PostMutexRepository
+import com.galaktionov.repository.PostRepository
 import com.google.gson.Gson
 import io.ktor.application.*
 import io.ktor.response.*
@@ -19,6 +21,11 @@ import io.ktor.client.features.logging.*
 import io.ktor.client.request.get
 import io.ktor.client.request.post
 import io.ktor.client.request.url
+import org.kodein.di.generic.bind
+import org.kodein.di.generic.instance
+import org.kodein.di.generic.singleton
+import org.kodein.di.ktor.KodeinFeature
+import org.kodein.di.ktor.kodein
 import kotlin.coroutines.EmptyCoroutineContext
 
 const val posts_url = "https://raw.githubusercontent.com/arty2100/gson/master/posts.json"
@@ -120,16 +127,37 @@ fun Application.module(testing: Boolean = false) {
 
         }
     }
+    install(KodeinFeature) {
+        bind<PostRepository>() with singleton {
+            PostMutexRepository().apply {
+                allPosts.forEach {
+                    runBlocking {
+                        save(PostModel(it.id, it.author, it.content,it.created,it.likedByMe,it.likes,it.comments,it.shares,it.address,it.location,it.videoUrl,it.postTpe,it.advLink,it.companyImg))
+                    }
+                }
+            }
+        }
+    }
 
     routing {
-        route("/posts") {
+        val repo by kodein().instance<PostRepository>()
+
+        route("/api/v1/posts") {
             get {
-                val response = allPosts.map(PostResponseDto.Companion::fromModel)
+                val response = repo.getAll().map(PostResponseDto.Companion::fromModel)
+                call.respond(response)
+            }
+            get("/{id}") {
+                val id = call.parameters["id"]?.toLongOrNull() ?: throw ParameterConversionException("id", "Long")
+                val model = repo.getById(id) ?: throw NotFoundException()
+                val response = PostResponseDto.fromModel(model)
                 call.respond(response)
             }
             post {
                 val request = call.receive<PostRequestDto>()
-                request.id
+                val model = PostModel( null,request.author, request.content,request.created,request.likedByMe,request.likes,request.comments,request.shares,request.address,request.location,request.videoUrl,request.postTpe,request.advLink,request.companyImg)
+                val response = repo.save(model)
+                call.respond(response)
             }
         }
     }

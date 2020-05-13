@@ -3,9 +3,9 @@ package com.galaktionov.firstandroidapp.dto
 import com.sun.jndi.toolkit.url.Uri
 
 data class PostModel(
-    val id: Long,
+    val id: Long? = null,
     val author: String,
-    val content: String,
+    val content: String? = null,
     val created: Long,//milliseconds
     var likedByMe: Boolean = false,
     var likes: Int = 0,

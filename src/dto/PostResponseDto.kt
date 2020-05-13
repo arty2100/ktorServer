@@ -21,7 +21,7 @@ data class PostResponseDto(
 ) {
     companion object {
         fun fromModel(model: PostModel) = PostResponseDto(
-            id = model.id,
+            id = model.id!!,
             author = model.author,
             content = model.content,
             created = model.created,
