@@ -69,14 +69,7 @@ fun Application.module(testing: Boolean = false) {
         }
     }
     install(StatusPages) {
-        exception<AuthenticationException> { cause ->
-            call.respond(HttpStatusCode.Unauthorized)
-            throw cause
-        }
-        exception<AuthorizationException> { cause ->
-            call.respond(HttpStatusCode.Forbidden)
-            throw cause
-        }
+
         exception<ParameterConversionException> { cause ->
             val error = ErrorModel(HttpStatusCode.BadRequest.value, HttpStatusCode.BadRequest.description,  cause.toString())
             call.respond(error)
@@ -139,10 +132,3 @@ fun Application.module(testing: Boolean = false) {
         }
     }
 }
-
-
-class AuthenticationException : RuntimeException()
-class AuthorizationException : RuntimeException()
-
-data class JsonSampleClass(val hello: String)
-
