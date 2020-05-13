@@ -8,5 +8,4 @@ interface PostRepository {
     suspend fun save(item: PostModel): PostModel
     suspend fun removeById(id: Long)
     suspend fun like(item: PostModel): PostModel
-    suspend fun dislikeById(id: Long): PostModel?
 }
