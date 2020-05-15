@@ -18,7 +18,8 @@ data class PostResponseDto(
         val videoUrl: String? = null,
         val postTpe: PostModel.POST_TYPE,
         val advLink: String? = null,
-        val companyImg: String? = null
+        val companyImg: String? = null,
+        val viws: Int = 0
 ) {
     companion object {
         fun fromModel(model: PostModel) = PostResponseDto(
@@ -36,7 +37,8 @@ data class PostResponseDto(
                 videoUrl = model.videoUrl,
                 postTpe = model.postTpe,
                 advLink = model.advLink,
-                companyImg = model.companyImg
+                companyImg = model.companyImg,
+                viws =  model.views
         )
     }
 }
