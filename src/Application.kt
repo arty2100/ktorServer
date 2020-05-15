@@ -138,7 +138,7 @@ fun Application.module(testing: Boolean = false) {
             }
             post("/repost/{id}") {
                 val model = checkIdAndModel(repo)
-                call.respond(PostResponseDto.fromModel(repo.save(model)))
+                call.respond(PostResponseDto.fromModel(repo.repost(model)))
             }
             delete("/{id}") {
                 val model = checkIdAndModel(repo)
