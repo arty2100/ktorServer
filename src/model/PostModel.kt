@@ -6,6 +6,7 @@ data class PostModel(
         val content: String? = null,
         val created: Long,//milliseconds
         var likedByMe: Boolean = false,
+        var dislikedByMe: Boolean = false,
         var likes: Int = 0,
         var comments: Int = 0,
         var shares: Int = 0,

@@ -6,6 +6,7 @@ interface PostRepository {
     suspend fun getAll(): List<PostModel>
     suspend fun getById(id: Long): PostModel?
     suspend fun save(item: PostModel): PostModel
-    suspend fun removeById(id: Long)
+    suspend fun remove(item: PostModel)
     suspend fun like(item: PostModel): PostModel
+    suspend fun dislike(item: PostModel): PostModel
 }

@@ -32,21 +32,35 @@ class PostMutexRepository() : PostRepository {
                 }
             }
 
-    override suspend fun removeById(id: Long) {
+    override suspend fun remove(model: PostModel) {
 
         mutex.withLock {
-            posts.remove(posts.find { it.id == id })
+            posts.remove(model)
         }
     }
 
     override suspend fun like(item: PostModel): PostModel = mutex.withLock {
 
         if (!item.likedByMe) {
-            item.likes++
+            if (item.dislikedByMe) item.likes + 2 else item.likes++
             item.likedByMe = true
+            item.dislikedByMe = false
         } else {
             item.likes--
             item.likedByMe = false
+        }
+        item
+    }
+
+    override suspend fun dislike(item: PostModel): PostModel = mutex.withLock {
+
+        if (!item.dislikedByMe) {
+            if (item.likedByMe) item.likes - 2 else item.likes--
+            item.dislikedByMe = true
+            item.likedByMe = false
+        } else {
+            item.likes++
+            item.dislikedByMe = false
         }
         item
     }

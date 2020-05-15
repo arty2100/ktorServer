@@ -7,6 +7,7 @@ import com.galaktionov.model.ErrorModel
 import com.galaktionov.repository.PostMutexRepository
 import com.galaktionov.repository.PostRepository
 import io.ktor.application.Application
+import io.ktor.application.ApplicationCall
 import io.ktor.application.call
 import io.ktor.application.install
 import io.ktor.client.HttpClient
@@ -27,6 +28,7 @@ import io.ktor.request.receive
 import io.ktor.response.respond
 import io.ktor.response.respondText
 import io.ktor.routing.*
+import io.ktor.util.pipeline.PipelineContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -100,7 +102,7 @@ fun Application.module(testing: Boolean = false) {
             PostMutexRepository().apply {
                 allPosts.forEach {
                     runBlocking {
-                        save(PostModel(it.id, it.author, it.content, it.created, it.likedByMe, it.likes, it.comments, it.shares, it.address, it.location, it.videoUrl, it.postTpe, it.advLink, it.companyImg))
+                        save(PostModel(it.id, it.author, it.content, it.created, it.likedByMe, it.dislikedByMe, it.likes, it.comments, it.shares, it.address, it.location, it.videoUrl, it.postTpe, it.advLink, it.companyImg))
                     }
                 }
             }
@@ -116,29 +118,34 @@ fun Application.module(testing: Boolean = false) {
                 call.respond(response)
             }
             get("/{id}") {
-                val id = call.parameters["id"]?.toLongOrNull() ?: throw ParameterConversionException("id", "Long")
-                val model = repo.getById(id) ?: throw NotFoundException()
+                val model = checkIdAndModel(repo)
                 val response = PostResponseDto.fromModel(model)
                 call.respond(response)
             }
             post {
                 val request = call.receive<PostRequestDto>()
-                val modelToSave = PostModel(null, request.author, request.content, request.created, request.likedByMe, request.likes, request.comments, request.shares, request.address, request.location, request.videoUrl, request.postTpe, request.advLink, request.companyImg)
+                val modelToSave = PostModel(null, request.author, request.content, request.created, request.likedByMe, request.dislikedByMe, request.likes, request.comments, request.shares, request.address, request.location, request.videoUrl, request.postTpe, request.advLink, request.companyImg)
                 val model = repo.save(modelToSave)
                 call.respond(PostResponseDto.fromModel(model))
             }
             post("/like/{id}") {
-                val id = call.parameters["id"]?.toLongOrNull() ?: throw ParameterConversionException("id", "Long")
-                val model = repo.getById(id) ?: throw NotFoundException()
+                val model = checkIdAndModel(repo)
                 call.respond(PostResponseDto.fromModel(repo.like(model)))
             }
-
+            post("/dislike/{id}") {
+                val model = checkIdAndModel(repo)
+                call.respond(PostResponseDto.fromModel(repo.dislike(model)))
+            }
             delete("/{id}") {
-                val id = call.parameters["id"]?.toLongOrNull() ?: throw ParameterConversionException("id", "Long")
-                val model = repo.getById(id) ?: throw NotFoundException()
-                repo.removeById(model.id!!)
-                call.respondText("Post $id has been deleted ")
+                val model = checkIdAndModel(repo)
+                repo.remove(model)
+                call.respondText("Post has been deleted ")
             }
         }
     }
+}
+
+private suspend fun PipelineContext<Unit, ApplicationCall>.checkIdAndModel(repo: PostRepository): PostModel {
+    val id = call.parameters["id"]?.toLongOrNull() ?: throw ParameterConversionException("id", "Long")
+    return repo.getById(id) ?: throw NotFoundException()
 }
