@@ -2,6 +2,7 @@ package com.galaktionov
 
 import com.galaktionov.dto.PostRequestDto
 import com.galaktionov.dto.PostResponseDto
+import com.galaktionov.dto.PostSearchRequestDto
 import com.galaktionov.firstandroidapp.dto.PostModel
 import com.galaktionov.model.ErrorModel
 import com.galaktionov.repository.PostMutexRepository
@@ -33,7 +34,6 @@ import kotlinx.coroutines.*
 import org.kodein.di.generic.bind
 import org.kodein.di.generic.eagerSingleton
 import org.kodein.di.generic.instance
-import org.kodein.di.generic.singleton
 import org.kodein.di.ktor.KodeinFeature
 import org.kodein.di.ktor.kodein
 
@@ -100,7 +100,7 @@ fun Application.module(testing: Boolean = false) {
             PostMutexRepository().apply {
                 allPosts.forEach {
                     runBlocking {
-                        save(PostModel(it.id, it.author, it.content, it.created, it.likedByMe, it.dislikedByMe, it.likes, it.comments, it.shares, it.address, it.location, it.videoUrl, it.postTpe, it.advLink, it.companyImg))
+                        save(PostModel(it.id, it.author, it.content, it.created, it.likedByMe, it.dislikedByMe, it.likes, it.comments, it.shares, it.address, it.location, it.videoUrl, it.postTpe, it.advLink, it.companyImg, 0, emptyList<String>().toHashSet()))
                     }
                 }
             }
@@ -115,15 +115,21 @@ fun Application.module(testing: Boolean = false) {
                 val response = repo.getAll().map(PostResponseDto.Companion::fromModel)
                 call.respond(response)
             }
-            get("/{id}") {
-                val model = checkIdAndModel(repo)
-                model.views++
+            post("/findById") {
+                val request = call.receive<PostSearchRequestDto>()
+                val model = repo.getById(request.id) ?: throw NotFoundException()
+                val userId = request.userId
+
+                if (!model.userIdList.contains(userId)) {
+                    model.userIdList.add(userId)
+                    model.views++
+                }
                 val response = PostResponseDto.fromModel(model)
                 call.respond(response)
             }
             post {
                 val request = call.receive<PostRequestDto>()
-                val modelToSave = PostModel(null, request.author, request.content, request.created, request.likedByMe, request.dislikedByMe, request.likes, request.comments, request.shares, request.address, request.location, request.videoUrl, request.postTpe, request.advLink, request.companyImg)
+                val modelToSave = PostModel(null, request.author, request.content, request.created, request.likedByMe, request.dislikedByMe, request.likes, request.comments, request.shares, request.address, request.location, request.videoUrl, request.postTpe, request.advLink, request.companyImg, 0, emptyList<String>().toHashSet())
                 val model = repo.save(modelToSave)
                 call.respond(PostResponseDto.fromModel(model))
             }

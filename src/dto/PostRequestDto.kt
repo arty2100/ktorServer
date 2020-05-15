@@ -4,6 +4,7 @@ import com.galaktionov.firstandroidapp.dto.LocationModel
 import com.galaktionov.firstandroidapp.dto.PostModel
 
 data class PostRequestDto(
+        val id:Long? = null,
         val author: String,
         val content: String? = null,
         val created: Long,//milliseconds
@@ -17,5 +18,6 @@ data class PostRequestDto(
         val videoUrl: String? = null,
         val postTpe: PostModel.POST_TYPE,
         val advLink: String? = null,
-        val companyImg: String? = null
+        val companyImg: String? = null,
+        val userId: String? = null
 )

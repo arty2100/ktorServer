@@ -20,6 +20,7 @@ data class PostResponseDto(
         val advLink: String? = null,
         val companyImg: String? = null,
         var viws: Int = 0
+
 ) {
     companion object {
         fun fromModel(model: PostModel) = PostResponseDto(
