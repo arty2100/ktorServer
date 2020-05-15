@@ -29,10 +29,7 @@ import io.ktor.response.respond
 import io.ktor.response.respondText
 import io.ktor.routing.*
 import io.ktor.util.pipeline.PipelineContext
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.*
 import org.kodein.di.generic.bind
 import org.kodein.di.generic.eagerSingleton
 import org.kodein.di.generic.instance
@@ -115,7 +112,7 @@ fun Application.module(testing: Boolean = false) {
 
         route("/api/v1/posts") {
             get {
-                val response = repo.getAll().map(PostResponseDto::fromModel)
+                val response = repo.getAll().map(PostResponseDto.Companion::fromModel)
                 call.respond(response)
             }
             get("/{id}") {
