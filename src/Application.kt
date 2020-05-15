@@ -34,6 +34,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import org.kodein.di.generic.bind
+import org.kodein.di.generic.eagerSingleton
 import org.kodein.di.generic.instance
 import org.kodein.di.generic.singleton
 import org.kodein.di.ktor.KodeinFeature
@@ -98,7 +99,7 @@ fun Application.module(testing: Boolean = false) {
         }
     }
     install(KodeinFeature) {
-        bind<PostRepository>() with singleton {
+        bind<PostRepository>() with eagerSingleton {
             PostMutexRepository().apply {
                 allPosts.forEach {
                     runBlocking {
