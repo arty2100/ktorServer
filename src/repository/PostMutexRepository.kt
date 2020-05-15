@@ -65,4 +65,11 @@ class PostMutexRepository() : PostRepository {
         item
     }
 
+    override suspend fun repost(item: PostModel): PostModel = mutex.withLock {
+
+        val copy = item.copy(id = nextId++, postTpe = PostModel.POST_TYPE.REPOST)
+        posts.add(copy)
+        copy
+    }
+
 }

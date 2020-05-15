@@ -18,7 +18,7 @@ data class PostModel(
         val companyImg: String? = null
 ) {
     enum class POST_TYPE {
-        VIDEO, TEXT, REPLY, EVENT, ADV
+        VIDEO, TEXT, REPOST, EVENT, ADV
     }
 }
 

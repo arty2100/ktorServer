@@ -136,6 +136,10 @@ fun Application.module(testing: Boolean = false) {
                 val model = checkIdAndModel(repo)
                 call.respond(PostResponseDto.fromModel(repo.dislike(model)))
             }
+            post("/repost/{id}") {
+                val model = checkIdAndModel(repo)
+                call.respond(PostResponseDto.fromModel(repo.save(model)))
+            }
             delete("/{id}") {
                 val model = checkIdAndModel(repo)
                 repo.remove(model)

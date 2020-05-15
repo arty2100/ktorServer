@@ -9,4 +9,6 @@ interface PostRepository {
     suspend fun remove(item: PostModel)
     suspend fun like(item: PostModel): PostModel
     suspend fun dislike(item: PostModel): PostModel
+    suspend fun repost(item: PostModel): PostModel
+
 }
