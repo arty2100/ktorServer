@@ -16,7 +16,7 @@ data class PostModel(
         val postTpe: POST_TYPE,
         val advLink: String? = null,
         val companyImg: String? = null,
-        val views: Int = 0
+        var views: Int = 0
 ) {
     enum class POST_TYPE {
         VIDEO, TEXT, REPOST, EVENT, ADV

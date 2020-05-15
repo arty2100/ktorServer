@@ -115,11 +115,12 @@ fun Application.module(testing: Boolean = false) {
 
         route("/api/v1/posts") {
             get {
-                val response = repo.getAll().map(PostResponseDto.Companion::fromModel)
+                val response = repo.getAll().map(PostResponseDto::fromModel)
                 call.respond(response)
             }
             get("/{id}") {
                 val model = checkIdAndModel(repo)
+                model.views++
                 val response = PostResponseDto.fromModel(model)
                 call.respond(response)
             }
