@@ -23,6 +23,3 @@ data class PostModel(
         VIDEO, TEXT, REPOST, EVENT, ADV
     }
 }
-
-
-

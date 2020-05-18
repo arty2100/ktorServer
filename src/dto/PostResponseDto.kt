@@ -19,7 +19,7 @@ data class PostResponseDto(
         val postTpe: PostModel.POST_TYPE,
         val advLink: String? = null,
         val companyImg: String? = null,
-        var viws: Int = 0
+        val views: Int
 
 ) {
     companion object {
@@ -39,7 +39,7 @@ data class PostResponseDto(
                 postTpe = model.postTpe,
                 advLink = model.advLink,
                 companyImg = model.companyImg,
-                viws =  model.views
+                views =  model.views
         )
     }
 }
