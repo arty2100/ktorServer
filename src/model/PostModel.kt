@@ -17,14 +17,11 @@ data class PostModel(
         val advLink: String? = null,
         val companyImg: String? = null,
         var views: Int = 0,
-        var userIdList: HashSet<String>
+        val userIdList: MutableList<String>
 ) {
     enum class POST_TYPE {
         VIDEO, TEXT, REPOST, EVENT, ADV
     }
-}
-class User (val id :String){
-
 }
 
 
