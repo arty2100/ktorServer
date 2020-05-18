@@ -100,7 +100,7 @@ fun Application.module(testing: Boolean = false) {
             PostMutexRepository().apply {
                 allPosts.forEach {
                     runBlocking {
-                        save(PostModel(it.id, it.author, it.content, it.created, it.likedByMe, it.dislikedByMe, it.likes, it.comments, it.shares, it.address, it.location, it.videoUrl, it.postTpe, it.advLink, it.companyImg, 0, emptyList<String>().toHashSet()))
+                        save(PostModel(it.id, it.author, it.content, it.created, it.likedByMe, it.dislikedByMe, it.likes, it.comments, it.shares, it.address, it.location, it.videoUrl, it.postTpe, it.advLink, it.companyImg, 0, mutableListOf()))
                     }
                 }
             }
@@ -129,7 +129,7 @@ fun Application.module(testing: Boolean = false) {
             }
             post {
                 val request = call.receive<PostRequestDto>()
-                val modelToSave = PostModel(null, request.author, request.content, request.created, request.likedByMe, request.dislikedByMe, request.likes, request.comments, request.shares, request.address, request.location, request.videoUrl, request.postTpe, request.advLink, request.companyImg, 0, emptyList<String>().toHashSet())
+                val modelToSave = PostModel(null, request.author, request.content, request.created, request.likedByMe, request.dislikedByMe, request.likes, request.comments, request.shares, request.address, request.location, request.videoUrl, request.postTpe, request.advLink, request.companyImg, 0, mutableListOf())
                 val model = repo.save(modelToSave)
                 call.respond(PostResponseDto.fromModel(model))
             }

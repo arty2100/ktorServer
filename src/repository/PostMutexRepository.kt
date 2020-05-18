@@ -7,7 +7,7 @@ import kotlinx.coroutines.sync.withLock
 class PostMutexRepository() : PostRepository {
     private val posts = mutableListOf<PostModel>()
     private var nextId = 1L
-    val mutex = Mutex()
+    private val mutex = Mutex()
     override suspend fun getAll(): List<PostModel> = mutex.withLock {
         posts
     }
@@ -32,37 +32,54 @@ class PostMutexRepository() : PostRepository {
                 }
             }
 
-    override suspend fun remove(model: PostModel) {
+    override suspend fun remove(item: PostModel) {
 
         mutex.withLock {
-            posts.remove(model)
+            posts.remove(item)
         }
     }
 
     override suspend fun like(item: PostModel): PostModel = mutex.withLock {
 
+        val newItem: PostModel
+
         if (!item.likedByMe) {
-            if (item.dislikedByMe) item.likes + 2 else item.likes++
-            item.likedByMe = true
-            item.dislikedByMe = false
+            val likes = if (item.dislikedByMe) {
+                item.likes + 2
+            } else {
+                item.likes.inc()
+            }
+
+            newItem = item.copy(likes = likes, likedByMe = true, dislikedByMe = false)
+
+            posts[posts.indexOf(item)] = newItem
         } else {
-            item.likes--
-            item.likedByMe = false
+            newItem = item.copy(likes = item.likes.dec(), likedByMe = false)
+
+            posts[posts.indexOf(item)] = newItem
         }
-        item
+
+        newItem
+
     }
 
     override suspend fun dislike(item: PostModel): PostModel = mutex.withLock {
 
+        val newItem: PostModel
+
         if (!item.dislikedByMe) {
-            if (item.likedByMe) item.likes - 2 else item.likes--
-            item.dislikedByMe = true
-            item.likedByMe = false
+            val likes = if (item.likedByMe) item.likes - 2 else item.likes.dec()
+
+            newItem = item.copy(likes = likes, dislikedByMe = true, likedByMe = false)
+
+            posts[posts.indexOf(item)] = newItem
         } else {
-            item.likes++
-            item.dislikedByMe = false
+            newItem = item.copy(likes = item.likes.inc(), dislikedByMe = false)
+
+            posts[posts.indexOf(item)] = newItem
         }
-        item
+
+        newItem
     }
 
     override suspend fun repost(item: PostModel): PostModel = mutex.withLock {
@@ -70,6 +87,8 @@ class PostMutexRepository() : PostRepository {
         val copy = item.copy(id = nextId++, postTpe = PostModel.POST_TYPE.REPOST)
         posts.add(copy)
         copy
+
+
     }
 
 }
