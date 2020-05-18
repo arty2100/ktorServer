@@ -49,16 +49,14 @@ class PostMutexRepository() : PostRepository {
             } else {
                 item.likes.inc()
             }
-
             newItem = item.copy(likes = likes, likedByMe = true, dislikedByMe = false)
 
-            posts[posts.indexOf(item)] = newItem
         } else {
             newItem = item.copy(likes = item.likes.dec(), likedByMe = false)
 
-            posts[posts.indexOf(item)] = newItem
-        }
 
+        }
+        posts[posts.indexOf(item)] = newItem
         newItem
 
     }
@@ -72,13 +70,12 @@ class PostMutexRepository() : PostRepository {
 
             newItem = item.copy(likes = likes, dislikedByMe = true, likedByMe = false)
 
-            posts[posts.indexOf(item)] = newItem
         } else {
             newItem = item.copy(likes = item.likes.inc(), dislikedByMe = false)
 
-            posts[posts.indexOf(item)] = newItem
-        }
 
+        }
+        posts[posts.indexOf(item)] = newItem
         newItem
     }
 
