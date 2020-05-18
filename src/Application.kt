@@ -119,12 +119,7 @@ fun Application.module(testing: Boolean = false) {
                 val request = call.receive<PostSearchRequestDto>()
                 val model = repo.getById(request.id) ?: throw NotFoundException()
                 val userId = request.userId
-
-                if (!model.userIdList.contains(userId)) {
-                    model.userIdList.add(userId)
-                    model.views++
-                }
-                val response = PostResponseDto.fromModel(model)
+                val response = PostResponseDto.fromModel(repo.addViews(model,userId))
                 call.respond(response)
             }
             post {

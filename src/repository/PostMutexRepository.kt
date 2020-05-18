@@ -88,4 +88,16 @@ class PostMutexRepository() : PostRepository {
 
     }
 
+    override suspend fun addViews(item: PostModel, userId: String): PostModel = mutex.withLock {
+
+       val newItem = if (!item.userIdList.contains(userId)) {
+            item.userIdList.add(userId)
+            item.copy(views = item.views.inc(), userIdList = item.userIdList)
+        } else {
+            item.copy()
+        }
+        posts[posts.indexOf(item)] = newItem
+        newItem
+    }
+
 }
