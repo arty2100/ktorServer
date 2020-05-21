@@ -39,11 +39,11 @@ class PostService(private val repo: PostRepository) {
         repo.remove(item)
     }
 
-    suspend fun like(item: PostModel): PostModel = repo.like(item)
+    suspend fun like(item: PostModel): PostResponseDto = PostResponseDto.fromModel(repo.like(item))
 
-    suspend fun dislike(item: PostModel): PostModel = repo.dislike(item)
+    suspend fun dislike(item: PostModel): PostResponseDto = PostResponseDto.fromModel(repo.dislike(item))
 
-    suspend fun repost(item: PostModel): PostModel = repo.repost(item)
+    suspend fun repost(item: PostModel): PostResponseDto = PostResponseDto.fromModel(repo.repost(item))
 }
 
 suspend fun PipelineContext<Unit, ApplicationCall>.checkIdAndModel(postService: PostService): PostModel {

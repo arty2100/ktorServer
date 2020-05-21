@@ -1,7 +1,6 @@
 package com.galaktionov.repository.v1
 
 import com.galaktionov.dto.PostRequestDto
-import com.galaktionov.dto.PostResponseDto
 import com.galaktionov.dto.PostSearchRequestDto
 import com.galaktionov.services.PostService
 import com.galaktionov.services.checkIdAndModel
@@ -33,15 +32,15 @@ class RoutingV1(private val postService: PostService) {
                 }
                 post("/like/{id}") {
                     val model = checkIdAndModel(postService)
-                    call.respond(PostResponseDto.fromModel(postService.like(model)))
+                    call.respond(postService.like(model))
                 }
                 post("/dislike/{id}") {
                     val model = checkIdAndModel(postService)
-                    call.respond(PostResponseDto.fromModel(postService.dislike(model)))
+                    call.respond(postService.dislike(model))
                 }
                 post("/repost/{id}") {
                     val model = checkIdAndModel(postService)
-                    call.respond(PostResponseDto.fromModel(postService.repost(model)))
+                    call.respond(postService.repost(model))
                 }
                 delete("/{id}") {
                     val model = checkIdAndModel(postService)
