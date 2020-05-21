@@ -1,16 +1,20 @@
 package com.galaktionov
 
-import com.galaktionov.dto.PostRequestDto
-import com.galaktionov.dto.PostResponseDto
-import com.galaktionov.dto.PostSearchRequestDto
 import com.galaktionov.firstandroidapp.dto.PostModel
 import com.galaktionov.model.ErrorModel
+import com.galaktionov.model.UserRepository
 import com.galaktionov.repository.PostMutexRepository
 import com.galaktionov.repository.PostRepository
+import com.galaktionov.repository.UserRepositoryInMemoryWithMutexImpl
+import com.galaktionov.repository.v1.RoutingV1
+import com.galaktionov.services.JWTTokenService
+import com.galaktionov.services.PostService
+import com.galaktionov.services.UserService
 import io.ktor.application.Application
-import io.ktor.application.ApplicationCall
 import io.ktor.application.call
 import io.ktor.application.install
+import io.ktor.auth.Authentication
+import io.ktor.auth.jwt.jwt
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.cio.CIO
 import io.ktor.client.features.json.GsonSerializer
@@ -25,17 +29,20 @@ import io.ktor.features.StatusPages
 import io.ktor.gson.gson
 import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
-import io.ktor.request.receive
 import io.ktor.response.respond
-import io.ktor.response.respondText
-import io.ktor.routing.*
-import io.ktor.util.pipeline.PipelineContext
-import kotlinx.coroutines.*
+import io.ktor.routing.Routing
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 import org.kodein.di.generic.bind
 import org.kodein.di.generic.eagerSingleton
 import org.kodein.di.generic.instance
+import org.kodein.di.generic.singleton
 import org.kodein.di.ktor.KodeinFeature
 import org.kodein.di.ktor.kodein
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
+import org.springframework.security.crypto.password.PasswordEncoder
 
 const val posts_url = "https://raw.githubusercontent.com/arty2100/gson/master/posts.json"
 const val adv_posts_url = "https://raw.githubusercontent.com/arty2100/gson/master/adv_posts.json"
@@ -95,6 +102,7 @@ fun Application.module(testing: Boolean = false) {
 
         }
     }
+
     install(KodeinFeature) {
         bind<PostRepository>() with eagerSingleton {
             PostMutexRepository().apply {
@@ -105,51 +113,41 @@ fun Application.module(testing: Boolean = false) {
                 }
             }
         }
+        bind<PasswordEncoder>() with singleton {
+            BCryptPasswordEncoder()
+        }
+        bind<UserRepository>() with eagerSingleton {
+            UserRepositoryInMemoryWithMutexImpl()
+        }
+        bind<JWTTokenService>() with eagerSingleton {
+            JWTTokenService()
+        }
+        bind<UserService>() with eagerSingleton {
+            UserService(instance(), instance(), instance())
+        }
+        bind<PostService>() with eagerSingleton {
+            PostService(instance())
+        }
+        bind<RoutingV1>() with eagerSingleton {
+            RoutingV1(instance())
+        }
+
     }
-
-    routing {
-        val repo by kodein().instance<PostRepository>()
-
-        route("/api/v1/posts") {
-            get {
-                val response = repo.getAll().map(PostResponseDto.Companion::fromModel)
-                call.respond(response)
-            }
-            post("/findById") {
-                val request = call.receive<PostSearchRequestDto>()
-                val model = repo.getById(request.id) ?: throw NotFoundException()
-                val userId = request.userId
-                val response = PostResponseDto.fromModel(repo.addViews(model,userId))
-                call.respond(response)
-            }
-            post {
-                val request = call.receive<PostRequestDto>()
-                val modelToSave = PostModel(null, request.author, request.content, request.created, request.likedByMe, request.dislikedByMe, request.likes, request.comments, request.shares, request.address, request.location, request.videoUrl, request.postTpe, request.advLink, request.companyImg, 0, mutableListOf())
-                val model = repo.save(modelToSave)
-                call.respond(PostResponseDto.fromModel(model))
-            }
-            post("/like/{id}") {
-                val model = checkIdAndModel(repo)
-                call.respond(PostResponseDto.fromModel(repo.like(model)))
-            }
-            post("/dislike/{id}") {
-                val model = checkIdAndModel(repo)
-                call.respond(PostResponseDto.fromModel(repo.dislike(model)))
-            }
-            post("/repost/{id}") {
-                val model = checkIdAndModel(repo)
-                call.respond(PostResponseDto.fromModel(repo.repost(model)))
-            }
-            delete("/{id}") {
-                val model = checkIdAndModel(repo)
-                repo.remove(model)
-                call.respondText("Post has been deleted ")
+    install(Authentication) {
+        jwt {
+            val jwtService by kodein().instance<JWTTokenService>()
+            verifier(jwtService.verifier)
+            val userService by kodein().instance<UserService>()
+            validate {
+                val id = it.payload.getClaim("id").asLong()
+                userService.getModelById(id)
             }
         }
     }
+    install(Routing) {
+        val routingV1 by kodein().instance<RoutingV1>()
+        routingV1.setup(this)
+    }
 }
 
-private suspend fun PipelineContext<Unit, ApplicationCall>.checkIdAndModel(repo: PostRepository): PostModel {
-    val id = call.parameters["id"]?.toLongOrNull() ?: throw ParameterConversionException("id", "Long")
-    return repo.getById(id) ?: throw NotFoundException()
-}
+
