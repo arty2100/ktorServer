@@ -4,7 +4,7 @@ import com.galaktionov.firstandroidapp.dto.PostModel
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 
-class PostMutexRepository() : PostRepository {
+class PostMutexRepository : PostRepository {
     private val posts = mutableListOf<PostModel>()
     private var nextId = 1L
     private val mutex = Mutex()
