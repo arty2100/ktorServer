@@ -2,7 +2,9 @@ package com.galaktionov.repository.v1
 
 import com.galaktionov.dto.PostRequestDto
 import com.galaktionov.dto.PostSearchRequestDto
+import com.galaktionov.dto.UserRegistrationRequestDto
 import com.galaktionov.services.PostService
+import com.galaktionov.services.UserService
 import com.galaktionov.services.checkIdAndModel
 import io.ktor.application.call
 import io.ktor.request.receive
@@ -10,9 +12,22 @@ import io.ktor.response.respond
 import io.ktor.response.respondText
 import io.ktor.routing.*
 
-class RoutingV1(private val postService: PostService) {
+class RoutingV1(private val postService: PostService, private val userService: UserService) {
     fun setup(configuration: Routing) {
         with(configuration) {
+
+            route("/api/v1/users") {
+                post("/registration") {
+                    val input = call.receive<UserRegistrationRequestDto>()
+
+                    val model =
+                            if (userService.getByUsername(input.username) != null) {
+                                throw Exception("Duplicated user!")
+                            } else
+                                call.respond(userService.register(input))
+                }
+            }
+
             route("/api/v1/posts") {
                 get {
                     val response = postService.getAll()

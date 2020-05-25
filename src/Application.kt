@@ -129,7 +129,7 @@ fun Application.module(testing: Boolean = false) {
             PostService(instance())
         }
         bind<RoutingV1>() with eagerSingleton {
-            RoutingV1(instance())
+            RoutingV1(postService = instance(), userService = instance())
         }
 
     }

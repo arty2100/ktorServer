@@ -14,23 +14,39 @@ class UserRepositoryInMemoryWithMutexImpl : UserRepository {
             return items.toList()
         }
     }
+
     override suspend fun getById(id: Long): UserModel? {
         mutex.withLock {
             return items.find { it.id == id }
         }
     }
+
     override suspend fun getByIds(ids: Collection<Long>): List<UserModel> {
         mutex.withLock {
             return items.filter { ids.contains(it.id) }
         }
     }
+
     override suspend fun getByUsername(username: String): UserModel? {
         mutex.withLock {
             return items.find { it.username == username }
         }
     }
 
-    override suspend fun save(item: UserModel): UserModel {
-        TODO("Not yet implemented")
-    }
+    override suspend fun save(item: UserModel): UserModel =
+
+            mutex.withLock {
+                when (val index = items.indexOfFirst { it.id == item.id }) {
+                    -1 -> {
+                        val copy = item.copy(id = nextId++)
+                        items.add(copy)
+                        copy
+                    }
+                    else -> {
+                        items[index] = item
+                        item
+                    }
+                }
+
+            }
 }

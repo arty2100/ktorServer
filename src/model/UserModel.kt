@@ -1,11 +1,13 @@
 package com.galaktionov.model
 
+import com.galaktionov.services.JWTTokenService
 import io.ktor.auth.Principal
 
 data class UserModel(
-    val id: Long = 0,
+    val id: Long?,
     val username: String,
-    val password: String
+    val password: String,
+    var token : String?
 ): Principal
 interface UserRepository {
     suspend fun getAll(): List<UserModel>
