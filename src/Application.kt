@@ -41,6 +41,7 @@ import org.kodein.di.generic.instance
 import org.kodein.di.generic.singleton
 import org.kodein.di.ktor.KodeinFeature
 import org.kodein.di.ktor.kodein
+import org.omg.PortableInterceptor.ORBInitInfoPackage.DuplicateName
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.security.crypto.password.PasswordEncoder
 
@@ -82,6 +83,10 @@ fun Application.module(testing: Boolean = false) {
         }
         exception<NotFoundException> { cause ->
             val error = ErrorModel(HttpStatusCode.NotFound.value, HttpStatusCode.NotFound.description, cause.toString())
+            call.respond(error)
+        }
+        exception<DuplicateName> { cause ->
+            val error = ErrorModel(additionalMsg = cause.name)
             call.respond(error)
         }
 

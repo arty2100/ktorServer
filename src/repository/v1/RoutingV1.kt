@@ -19,12 +19,7 @@ class RoutingV1(private val postService: PostService, private val userService: U
             route("/api/v1/users") {
                 post("/registration") {
                     val input = call.receive<UserRegistrationRequestDto>()
-
-                    val model =
-                            if (userService.getByUsername(input.username) != null) {
-                                throw Exception("Duplicated user!")
-                            } else
-                                call.respond(userService.register(input))
+                    call.respond(userService.register(input))
                 }
             }
 

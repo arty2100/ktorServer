@@ -5,6 +5,7 @@ import com.galaktionov.dto.UserResponseDto
 import com.galaktionov.model.UserModel
 import com.galaktionov.model.UserRepository
 import io.ktor.features.NotFoundException
+import org.omg.PortableInterceptor.ORBInitInfoPackage.DuplicateName
 import org.springframework.security.crypto.password.PasswordEncoder
 
 class UserService(
@@ -30,11 +31,15 @@ class UserService(
 
     suspend fun register(input: UserRegistrationRequestDto): UserResponseDto {
 
-        val model = save(input)
-        val token = tokenService.generate(model.id!!)
-        model.token = token
-        return UserResponseDto.fromModel(model)
+        if (getByUsername(input.username) != null) {
+            throw DuplicateName("Duplicated user!")
+        } else {
 
+            val model = save(input)
+            val token = tokenService.generate(model.id!!)
+            model.token = token
+            return UserResponseDto.fromModel(model)
+        }
     }
 
 //    suspend fun authenticate(input: AuthenticationRequestDto):AuthenticationResponseDto {
