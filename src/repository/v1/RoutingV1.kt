@@ -21,6 +21,10 @@ class RoutingV1(private val postService: PostService, private val userService: U
                     val input = call.receive<UserRegistrationRequestDto>()
                     call.respond(userService.register(input))
                 }
+                post("/authenticate") {
+                    val input = call.receive<UserRegistrationRequestDto>()
+                    call.respond(userService.authenticate(input))
+                }
             }
 
             route("/api/v1/posts") {

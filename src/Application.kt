@@ -77,12 +77,12 @@ fun Application.module(testing: Boolean = false) {
     install(StatusPages) {
 
         exception<ParameterConversionException> { cause ->
-            val error = ErrorModel(HttpStatusCode.BadRequest.value, HttpStatusCode.BadRequest.description, cause.toString())
+            val error = ErrorModel(HttpStatusCode.BadRequest.value, HttpStatusCode.BadRequest.description, cause.message)
             call.respond(error)
             throw cause
         }
         exception<NotFoundException> { cause ->
-            val error = ErrorModel(HttpStatusCode.NotFound.value, HttpStatusCode.NotFound.description, cause.toString())
+            val error = ErrorModel(HttpStatusCode.NotFound.value, HttpStatusCode.NotFound.description, cause.message)
             call.respond(error)
         }
         exception<DuplicateName> { cause ->

@@ -42,15 +42,17 @@ class UserService(
         }
     }
 
-//    suspend fun authenticate(input: AuthenticationRequestDto):AuthenticationResponseDto {
-//        val model = repo.getByUsername(input.username) ?:
-//        throw NotFoundException()
-//        if (!passwordEncoder.matches(input.password, model.password)) {
-//            throw PasswordChangeException("Wrong password!")
-//        }
-//        val token = tokenService.generate(model.id)
-//        return AuthenticationResponseDto(token)
-//    }
+    suspend fun authenticate(input: UserRegistrationRequestDto): UserResponseDto {
+        val model = repo.getByUsername(input.username) ?: throw NotFoundException()
+        if (!passwordEncoder.matches(input.password, model.password)) {
+            // throw PasswordChangeException("Wrong password!")
+            throw NotFoundException("Wrong password!")
+        }
+        val token = tokenService.generate(model.id!!)
+        model.token = token
+        return UserResponseDto.fromModel(model)
+    }
+
 //    suspend fun changePassword(id: Long, input: PasswordChangeRequestDto) {
 //// TODO: handle concurrency
 //        val model = repo.getById(id) ?: throw NotFoundException()
