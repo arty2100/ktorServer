@@ -1,5 +1,6 @@
 package com.galaktionov
 
+import com.galaktionov.exception.AuthFailException
 import com.galaktionov.firstandroidapp.dto.PostModel
 import com.galaktionov.model.ErrorModel
 import com.galaktionov.model.UserRepository
@@ -89,6 +90,10 @@ fun Application.module(testing: Boolean = false) {
             val error = ErrorModel(value = HttpStatusCode.BadRequest.value, additionalMsg = cause.name)
             call.respond(error)
         }
+        exception<AuthFailException> { cause ->
+            val error = ErrorModel(value = HttpStatusCode.Unauthorized.value, description = HttpStatusCode.Unauthorized.description, additionalMsg = cause.message)
+            call.respond(error)
+        }
 
     }
 
@@ -113,7 +118,7 @@ fun Application.module(testing: Boolean = false) {
             PostMutexRepository().apply {
                 allPosts.forEach {
                     runBlocking {
-                        save(PostModel(it.id, it.author, it.content, it.created, it.likedByMe, it.dislikedByMe, it.likes, it.comments, it.shares, it.address, it.location, it.videoUrl, it.postTpe, it.advLink, it.companyImg, 0, mutableListOf()),null)
+                        save(PostModel(it.id, it.author, it.content, it.created, it.likedByMe, it.dislikedByMe, it.likes, it.comments, it.shares, it.address, it.location, it.videoUrl, it.postTpe, it.advLink, it.companyImg, 0, mutableListOf()), null)
                     }
                 }
             }
@@ -143,6 +148,9 @@ fun Application.module(testing: Boolean = false) {
             val jwtService by kodein().instance<JWTTokenService>()
             verifier(jwtService.verifier)
             val userService by kodein().instance<UserService>()
+            challenge { _, _ ->
+                throw AuthFailException("Authentication error!")
+            }
             validate {
                 val id = it.payload.getClaim("id").asLong()
                 userService.getModelById(id)
