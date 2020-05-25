@@ -86,7 +86,7 @@ fun Application.module(testing: Boolean = false) {
             call.respond(error)
         }
         exception<DuplicateName> { cause ->
-            val error = ErrorModel(additionalMsg = cause.name)
+            val error = ErrorModel(value = HttpStatusCode.BadRequest.value, additionalMsg = cause.name)
             call.respond(error)
         }
 
