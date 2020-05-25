@@ -113,7 +113,7 @@ fun Application.module(testing: Boolean = false) {
             PostMutexRepository().apply {
                 allPosts.forEach {
                     runBlocking {
-                        save(PostModel(it.id, it.author, it.content, it.created, it.likedByMe, it.dislikedByMe, it.likes, it.comments, it.shares, it.address, it.location, it.videoUrl, it.postTpe, it.advLink, it.companyImg, 0, mutableListOf()))
+                        save(PostModel(it.id, it.author, it.content, it.created, it.likedByMe, it.dislikedByMe, it.likes, it.comments, it.shares, it.address, it.location, it.videoUrl, it.postTpe, it.advLink, it.companyImg, 0, mutableListOf()),null)
                     }
                 }
             }

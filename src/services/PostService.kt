@@ -22,11 +22,11 @@ class PostService(private val repo: PostRepository) {
         return repo.getById(id) ?: throw NotFoundException()
     }
 
-    suspend fun save(input: PostRequestDto): PostResponseDto {
+    suspend fun save(input: PostRequestDto, author: String): PostResponseDto {
 
-        val model = PostModel(null, input.author, input.content, input.created, input.likedByMe, input.dislikedByMe, input.likes, input.comments, input.shares, input.address, input.location, input.videoUrl, input.postTpe, input.advLink, input.companyImg, 0, mutableListOf())
+        val model = PostModel(input.id, input.author, input.content, input.created, input.likedByMe, input.dislikedByMe, input.likes, input.comments, input.shares, input.address, input.location, input.videoUrl, input.postTpe, input.advLink, input.companyImg, 0, mutableListOf())
 
-        return PostResponseDto.fromModel(repo.save(model))
+        return PostResponseDto.fromModel(repo.save(model, author))
     }
 
     suspend fun addViews(item: PostModel, userId: String): PostResponseDto {

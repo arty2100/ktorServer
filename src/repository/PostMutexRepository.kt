@@ -17,7 +17,7 @@ class PostMutexRepository : PostRepository {
     }
 
 
-    override suspend fun save(item: PostModel): PostModel =
+    override suspend fun save(item: PostModel, author: String?): PostModel =
             mutex.withLock {
                 when (val index = posts.indexOfFirst { it.id == item.id }) {
                     -1 -> {
@@ -26,8 +26,13 @@ class PostMutexRepository : PostRepository {
                         copy
                     }
                     else -> {
-                        posts[index] = item
-                        item
+                        if (author == item.author || author==null) {
+                            posts[index] = item
+                            item
+                        } else {
+                            TODO()
+                        }
+
                     }
                 }
             }
@@ -90,10 +95,10 @@ class PostMutexRepository : PostRepository {
 
     override suspend fun addViews(item: PostModel, userId: String): PostModel = mutex.withLock {
 
-       val newItem = if (!item.userIdList.contains(userId)) {
-           val newList = item.userIdList.toMutableList().apply {
-               add(userId)
-           }
+        val newItem = if (!item.userIdList.contains(userId)) {
+            val newList = item.userIdList.toMutableList().apply {
+                add(userId)
+            }
             item.copy(views = item.views.inc(), userIdList = newList)
         } else {
             item.copy()
