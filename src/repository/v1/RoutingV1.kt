@@ -1,5 +1,6 @@
 package com.galaktionov.repository.v1
 
+import com.galaktionov.dto.PasswordChangeRequestDto
 import com.galaktionov.dto.PostRequestDto
 import com.galaktionov.dto.PostSearchRequestDto
 import com.galaktionov.dto.UserRegistrationRequestDto
@@ -24,6 +25,10 @@ class RoutingV1(private val postService: PostService, private val userService: U
                 post("/authenticate") {
                     val input = call.receive<UserRegistrationRequestDto>()
                     call.respond(userService.authenticate(input))
+                }
+                post("/changePassword") {
+                    val input = call.receive<PasswordChangeRequestDto>()
+                    call.respond(userService.changePassword(input))
                 }
             }
 

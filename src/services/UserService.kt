@@ -1,5 +1,6 @@
 package com.galaktionov.services
 
+import com.galaktionov.dto.PasswordChangeRequestDto
 import com.galaktionov.dto.UserRegistrationRequestDto
 import com.galaktionov.dto.UserResponseDto
 import com.galaktionov.model.UserModel
@@ -53,13 +54,14 @@ class UserService(
         return UserResponseDto.fromModel(model)
     }
 
-//    suspend fun changePassword(id: Long, input: PasswordChangeRequestDto) {
-//// TODO: handle concurrency
-//        val model = repo.getById(id) ?: throw NotFoundException()
-//        if (!passwordEncoder.matches(input.old, model.password)) {
-//            throw PasswordChangeException("Wrong password!")
-//        }
-//        val copy = model.copy(password = passwordEncoder.encode(input.new))
-//        repo.save(copy)
-//    }
+    suspend fun changePassword(input: PasswordChangeRequestDto) {
+
+        val model = repo.getById(input.id) ?: throw NotFoundException()
+        if (!passwordEncoder.matches(input.old, model.password)) {
+            //throw PasswordChangeException("Wrong password!")
+            throw NotFoundException("Wrong password!")
+        }
+        val copy = model.copy(password = passwordEncoder.encode(input.new))
+        repo.save(copy)
+    }
 }
