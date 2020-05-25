@@ -1,6 +1,5 @@
 package com.galaktionov.model
 
-import com.galaktionov.services.JWTTokenService
 import io.ktor.auth.Principal
 
 data class UserModel(
