@@ -1,6 +1,7 @@
 package com.galaktionov
 
 import com.galaktionov.exception.AuthFailException
+import com.galaktionov.exception.PasswordChangeException
 import com.galaktionov.firstandroidapp.dto.PostModel
 import com.galaktionov.model.ErrorModel
 import com.galaktionov.model.UserRepository
@@ -94,7 +95,10 @@ fun Application.module(testing: Boolean = false) {
             val error = ErrorModel(value = HttpStatusCode.Unauthorized.value, description = HttpStatusCode.Unauthorized.description, additionalMsg = cause.message)
             call.respond(error)
         }
-
+        exception<PasswordChangeException> { cause ->
+            val error = ErrorModel(value = HttpStatusCode.Forbidden.value, description = HttpStatusCode.Forbidden.description, additionalMsg = cause.message)
+            call.respond(error)
+        }
     }
 
 

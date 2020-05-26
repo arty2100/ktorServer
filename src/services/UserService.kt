@@ -3,6 +3,7 @@ package com.galaktionov.services
 import com.galaktionov.dto.PasswordChangeRequestDto
 import com.galaktionov.dto.UserRegistrationRequestDto
 import com.galaktionov.dto.UserResponseDto
+import com.galaktionov.exception.PasswordChangeException
 import com.galaktionov.model.UserModel
 import com.galaktionov.model.UserRepository
 import io.ktor.features.NotFoundException
@@ -46,8 +47,7 @@ class UserService(
     suspend fun authenticate(input: UserRegistrationRequestDto): UserResponseDto {
         val model = repo.getByUsername(input.username) ?: throw NotFoundException()
         if (!passwordEncoder.matches(input.password, model.password)) {
-            // throw PasswordChangeException("Wrong password!")
-            throw NotFoundException("Wrong password!")
+            throw PasswordChangeException("Wrong password!")
         }
         val token = tokenService.generate(model.id!!)
         model.token = token
@@ -58,8 +58,7 @@ class UserService(
 
         val model = repo.getById(input.id) ?: throw NotFoundException()
         if (!passwordEncoder.matches(input.old, model.password)) {
-            //throw PasswordChangeException("Wrong password!")
-            throw NotFoundException("Wrong password!")
+            throw PasswordChangeException("Wrong password!")
         }
         val copy = model.copy(password = passwordEncoder.encode(input.new))
         repo.save(copy)

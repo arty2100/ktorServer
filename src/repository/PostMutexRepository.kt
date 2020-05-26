@@ -1,5 +1,6 @@
 package com.galaktionov.repository
 
+import com.galaktionov.exception.AuthFailException
 import com.galaktionov.firstandroidapp.dto.PostModel
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -26,11 +27,11 @@ class PostMutexRepository : PostRepository {
                         copy
                     }
                     else -> {
-                        if (author == item.author || author==null) {
+                        if (author == item.author || author == null) {
                             posts[index] = item
                             item
                         } else {
-                            TODO()
+                            throw AuthFailException("This user can't modify the post")
                         }
 
                     }

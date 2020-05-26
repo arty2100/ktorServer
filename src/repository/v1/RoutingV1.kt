@@ -4,6 +4,7 @@ import com.galaktionov.dto.PasswordChangeRequestDto
 import com.galaktionov.dto.PostRequestDto
 import com.galaktionov.dto.PostSearchRequestDto
 import com.galaktionov.dto.UserRegistrationRequestDto
+import com.galaktionov.exception.AuthFailException
 import com.galaktionov.model.UserModel
 import com.galaktionov.services.PostService
 import com.galaktionov.services.UserService
@@ -72,7 +73,7 @@ class RoutingV1(private val postService: PostService, private val userService: U
                             postService.remove(model)
                             call.respondText("Post has been deleted ")
                         } else {
-                            //TODO exection
+                            throw AuthFailException("This user can't delete the post")
                         }
 
                     }
