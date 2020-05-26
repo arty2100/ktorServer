@@ -136,6 +136,10 @@ fun Application.module(testing: Boolean = false) {
                 environment.config.propertyOrNull("ktor.ktorServer.upload.dir")?.getString() ?:
                 throw ConfigurationException("Upload dir is not specified")
                 )
+        constant(tag ="secret") with (
+                environment.config.propertyOrNull("ktor.secret.key")?.getString() ?:
+                throw ConfigurationException("Secret key is not specified")
+                )
         bind<PasswordEncoder>() with singleton {
             BCryptPasswordEncoder()
         }
@@ -143,7 +147,7 @@ fun Application.module(testing: Boolean = false) {
             UserRepositoryInMemoryWithMutexImpl()
         }
         bind<JWTTokenService>() with eagerSingleton {
-            JWTTokenService()
+            JWTTokenService(instance(tag = "secret"))
         }
         bind<FileService>() with eagerSingleton {
             FileService(instance(tag = "upload-dir"))
