@@ -6,6 +6,7 @@ import com.galaktionov.dto.PostSearchRequestDto
 import com.galaktionov.dto.UserRegistrationRequestDto
 import com.galaktionov.exception.AuthFailException
 import com.galaktionov.model.UserModel
+import com.galaktionov.services.FileService
 import com.galaktionov.services.PostService
 import com.galaktionov.services.UserService
 import com.galaktionov.services.checkIdAndModel
@@ -13,11 +14,12 @@ import io.ktor.application.call
 import io.ktor.auth.authenticate
 import io.ktor.auth.authentication
 import io.ktor.request.receive
+import io.ktor.request.receiveMultipart
 import io.ktor.response.respond
 import io.ktor.response.respondText
 import io.ktor.routing.*
 
-class RoutingV1(private val postService: PostService, private val userService: UserService) {
+class RoutingV1(private val postService: PostService, private val userService: UserService, private val fileService: FileService) {
     fun setup(configuration: Routing) {
         with(configuration) {
 
@@ -36,6 +38,16 @@ class RoutingV1(private val postService: PostService, private val userService: U
                 }
             }
             authenticate {
+
+                route("/api/v1/media") {
+                    post {
+                        val multipart = call.receiveMultipart()
+                        val response = fileService.save(multipart)
+                        call.respond(response)
+                    }
+                }
+
+
                 route("/api/v1/posts") {
                     get {
                         val response = postService.getAll()

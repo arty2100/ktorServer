@@ -9,7 +9,6 @@ import io.ktor.application.call
 import io.ktor.features.NotFoundException
 import io.ktor.features.ParameterConversionException
 import io.ktor.util.pipeline.PipelineContext
-import kotlinx.coroutines.sync.withLock
 
 class PostService(private val repo: PostRepository) {
     suspend fun getAll(): List<PostResponseDto> {

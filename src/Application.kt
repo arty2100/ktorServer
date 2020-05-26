@@ -25,10 +25,7 @@ import io.ktor.client.features.json.JsonFeature
 import io.ktor.client.features.logging.LogLevel
 import io.ktor.client.features.logging.Logging
 import io.ktor.client.request.get
-import io.ktor.features.ContentNegotiation
-import io.ktor.features.NotFoundException
-import io.ktor.features.ParameterConversionException
-import io.ktor.features.StatusPages
+import io.ktor.features.*
 import io.ktor.gson.gson
 import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
@@ -82,8 +79,16 @@ fun Application.module(testing: Boolean = false) {
             call.respond(error)
             throw cause
         }
+        exception<UnsupportedMediaTypeException> { cause ->
+            val error = ErrorModel(HttpStatusCode.UnsupportedMediaType.value, HttpStatusCode.UnsupportedMediaType.description, cause.message)
+            call.respond(error)
+        }
         exception<NotFoundException> { cause ->
             val error = ErrorModel(HttpStatusCode.NotFound.value, HttpStatusCode.NotFound.description, cause.message)
+            call.respond(error)
+        }
+        exception<BadRequestException> { cause ->
+            val error = ErrorModel(HttpStatusCode.BadRequest.value, HttpStatusCode.BadRequest.description, cause.message)
             call.respond(error)
         }
         exception<DuplicateName> { cause ->
@@ -150,7 +155,7 @@ fun Application.module(testing: Boolean = false) {
             PostService(instance())
         }
         bind<RoutingV1>() with eagerSingleton {
-            RoutingV1(postService = instance(), userService = instance())
+            RoutingV1(postService = instance(), userService = instance(),fileService = instance())
         }
 
     }

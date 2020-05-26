@@ -1,6 +1,5 @@
 package com.galaktionov.dto
 
-import com.galaktionov.firstandroidapp.dto.PostModel
 import com.galaktionov.model.UserModel
 
 data class UserResponseDto(val id: Long, val token :String ) {
