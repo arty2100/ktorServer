@@ -37,15 +37,13 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
-import org.kodein.di.generic.bind
-import org.kodein.di.generic.eagerSingleton
-import org.kodein.di.generic.instance
-import org.kodein.di.generic.singleton
+import org.kodein.di.generic.*
 import org.kodein.di.ktor.KodeinFeature
 import org.kodein.di.ktor.kodein
 import org.omg.PortableInterceptor.ORBInitInfoPackage.DuplicateName
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.security.crypto.password.PasswordEncoder
+import javax.naming.ConfigurationException
 
 const val posts_url = "https://raw.githubusercontent.com/arty2100/gson/master/posts.json"
 const val adv_posts_url = "https://raw.githubusercontent.com/arty2100/gson/master/adv_posts.json"
@@ -99,6 +97,7 @@ fun Application.module(testing: Boolean = false) {
             val error = ErrorModel(value = HttpStatusCode.Forbidden.value, description = HttpStatusCode.Forbidden.description, additionalMsg = cause.message)
             call.respond(error)
         }
+
     }
 
 
@@ -127,6 +126,10 @@ fun Application.module(testing: Boolean = false) {
                 }
             }
         }
+        constant(tag ="upload-dir") with (
+                environment.config.propertyOrNull("ktorServer.upload.dir")?.getString() ?:
+                throw ConfigurationException("Upload dir is not specified")
+                )
         bind<PasswordEncoder>() with singleton {
             BCryptPasswordEncoder()
         }
