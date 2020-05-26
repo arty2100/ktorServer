@@ -9,6 +9,7 @@ import com.galaktionov.repository.PostMutexRepository
 import com.galaktionov.repository.PostRepository
 import com.galaktionov.repository.UserRepositoryInMemoryWithMutexImpl
 import com.galaktionov.repository.v1.RoutingV1
+import com.galaktionov.services.FileService
 import com.galaktionov.services.JWTTokenService
 import com.galaktionov.services.PostService
 import com.galaktionov.services.UserService
@@ -127,7 +128,7 @@ fun Application.module(testing: Boolean = false) {
             }
         }
         constant(tag ="upload-dir") with (
-                environment.config.propertyOrNull("ktorServer.upload.dir")?.getString() ?:
+                environment.config.propertyOrNull("ktor.ktorServer.upload.dir")?.getString() ?:
                 throw ConfigurationException("Upload dir is not specified")
                 )
         bind<PasswordEncoder>() with singleton {
@@ -138,6 +139,9 @@ fun Application.module(testing: Boolean = false) {
         }
         bind<JWTTokenService>() with eagerSingleton {
             JWTTokenService()
+        }
+        bind<FileService>() with eagerSingleton {
+            FileService(instance(tag = "upload-dir"))
         }
         bind<UserService>() with eagerSingleton {
             UserService(instance(), instance(), instance())
