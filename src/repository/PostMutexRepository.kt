@@ -49,16 +49,16 @@ class PostMutexRepository : PostRepository {
 
         val newItem: PostModel
 
-        if (!item.likedByMe) {
+        newItem = if (!item.likedByMe) {
             val likes = if (item.dislikedByMe) {
                 item.likes + 2
             } else {
                 item.likes.inc()
             }
-            newItem = item.copy(likes = likes, likedByMe = true, dislikedByMe = false)
+            item.copy(likes = likes, likedByMe = true, dislikedByMe = false)
 
         } else {
-            newItem = item.copy(likes = item.likes.dec(), likedByMe = false)
+            item.copy(likes = item.likes.dec(), likedByMe = false)
 
 
         }
@@ -71,13 +71,13 @@ class PostMutexRepository : PostRepository {
 
         val newItem: PostModel
 
-        if (!item.dislikedByMe) {
+        newItem = if (!item.dislikedByMe) {
             val likes = if (item.likedByMe) item.likes - 2 else item.likes.dec()
 
-            newItem = item.copy(likes = likes, dislikedByMe = true, likedByMe = false)
+            item.copy(likes = likes, dislikedByMe = true, likedByMe = false)
 
         } else {
-            newItem = item.copy(likes = item.likes.inc(), dislikedByMe = false)
+            item.copy(likes = item.likes.inc(), dislikedByMe = false)
 
 
         }
