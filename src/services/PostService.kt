@@ -2,6 +2,7 @@ package com.galaktionov.services
 
 import com.galaktionov.dto.PostRequestDto
 import com.galaktionov.dto.PostResponseDto
+import com.galaktionov.dto.PostSearchRequestDto
 import com.galaktionov.firstandroidapp.dto.PostModel
 import com.galaktionov.repository.PostRepository
 import io.ktor.application.ApplicationCall
@@ -28,9 +29,9 @@ class PostService(private val repo: PostRepository) {
         return PostResponseDto.fromModel(repo.save(model, author))
     }
 
-    suspend fun addViews(item: PostModel, userId: String): PostResponseDto {
-
-        return PostResponseDto.fromModel(repo.addViews(item, userId))
+    suspend fun addViews(request: PostSearchRequestDto): PostResponseDto {
+        val model = getById(request.id)
+        return PostResponseDto.fromModel(repo.addViews(model, request.userId))
     }
 
     suspend fun remove(item: PostModel) {

@@ -55,9 +55,7 @@ class RoutingV1(private val postService: PostService, private val userService: U
                     }
                     post("/findById") {
                         val request = call.receive<PostSearchRequestDto>()
-                        val model = postService.getById(request.id)
-                        val userId = request.userId
-                        val response = postService.addViews(model, userId)
+                        val response = postService.addViews(request)
                         call.respond(response)
                     }
                     post {
