@@ -61,8 +61,8 @@ class RoutingV1(private val postService: PostService, private val userService: U
                     post {
                         val user = call.authentication.principal<UserModel>()
                         val request = call.receive<PostRequestDto>()
-                        val model = postService.save(request, user!!.username)
-                        call.respond(model)
+                        val response = postService.save(request, user!!.username)
+                        call.respond(response)
                     }
                     post("/like/{id}") {
                         val model = checkIdAndModel(postService)
