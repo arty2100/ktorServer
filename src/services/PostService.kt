@@ -3,7 +3,9 @@ package com.galaktionov.services
 import com.galaktionov.dto.PostRequestDto
 import com.galaktionov.dto.PostResponseDto
 import com.galaktionov.dto.PostSearchRequestDto
+import com.galaktionov.exception.AuthFailException
 import com.galaktionov.firstandroidapp.dto.PostModel
+import com.galaktionov.model.UserModel
 import com.galaktionov.repository.PostRepository
 import io.ktor.application.ApplicationCall
 import io.ktor.application.call
@@ -34,9 +36,13 @@ class PostService(private val repo: PostRepository) {
         return PostResponseDto.fromModel(repo.addViews(model, request.userId))
     }
 
-    suspend fun remove(item: PostModel) {
+    suspend fun remove(item: PostModel, user: UserModel?) {
 
-        repo.remove(item)
+        if (user!!.username == item.author) {
+            repo.remove(item)
+        } else {
+            throw AuthFailException("This user can't delete the post")
+        }
     }
 
     suspend fun like(item: PostModel): PostResponseDto = PostResponseDto.fromModel(repo.like(item))

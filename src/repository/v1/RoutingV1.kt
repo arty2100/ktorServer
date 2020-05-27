@@ -79,12 +79,8 @@ class RoutingV1(private val postService: PostService, private val userService: U
                     delete("/{id}") {
                         val user = call.authentication.principal<UserModel>()
                         val model = checkIdAndModel(postService)
-                        if (user!!.username == model.author) {
-                            postService.remove(model)
-                            call.respondText("Post has been deleted ")
-                        } else {
-                            throw AuthFailException("This user can't delete the post")
-                        }
+                        postService.remove(model, user)
+                        call.respondText("Post has been deleted ")
 
                     }
                 }
