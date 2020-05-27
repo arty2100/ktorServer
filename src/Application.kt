@@ -132,13 +132,13 @@ fun Application.module(testing: Boolean = false) {
                 }
             }
         }
-        constant(tag ="upload-dir") with (
-                environment.config.propertyOrNull("ktor.ktorServer.upload.dir")?.getString() ?:
-                throw ConfigurationException("Upload dir is not specified")
+        constant(tag = "upload-dir") with (
+                environment.config.propertyOrNull("ktor.ktorServer.upload.dir")?.getString()
+                        ?: throw ConfigurationException("Upload dir is not specified")
                 )
-        constant(tag ="secret") with (
-                environment.config.propertyOrNull("ktor.secret.key")?.getString() ?:
-                throw ConfigurationException("Secret key is not specified")
+        constant(tag = "secret") with (
+                environment.config.propertyOrNull("ktor.secret.key")?.getString()
+                        ?: throw ConfigurationException("Secret key is not specified")
                 )
         bind<PasswordEncoder>() with singleton {
             BCryptPasswordEncoder()
@@ -153,13 +153,13 @@ fun Application.module(testing: Boolean = false) {
             FileService(instance(tag = "upload-dir"))
         }
         bind<UserService>() with eagerSingleton {
-            UserService(instance(), instance(), instance())
+            UserService(repo = instance(), tokenService = instance(), passwordEncoder = instance())
         }
         bind<PostService>() with eagerSingleton {
-            PostService(instance())
+            PostService(repo = instance())
         }
         bind<RoutingV1>() with eagerSingleton {
-            RoutingV1(postService = instance(), userService = instance(),fileService = instance())
+            RoutingV1(postService = instance(), userService = instance(), fileService = instance())
         }
 
     }
