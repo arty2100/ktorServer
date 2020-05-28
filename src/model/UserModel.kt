@@ -5,8 +5,7 @@ import io.ktor.auth.Principal
 data class UserModel(
     val id: Long?,
     val username: String,
-    val password: String,
-    var token : String?
+    val password: String
 ): Principal
 interface UserRepository {
     suspend fun getAll(): List<UserModel>

@@ -10,5 +10,5 @@ interface PostRepository {
     suspend fun like(item: PostModel): PostModel
     suspend fun dislike(item: PostModel): PostModel
     suspend fun repost(item: PostModel): PostModel
-    suspend fun addViews(item: PostModel, userId: String): PostModel
+    suspend fun addViews(item: PostModel, userId: Long?): PostModel
 }

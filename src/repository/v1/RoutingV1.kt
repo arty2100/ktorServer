@@ -4,7 +4,6 @@ import com.galaktionov.dto.PasswordChangeRequestDto
 import com.galaktionov.dto.PostRequestDto
 import com.galaktionov.dto.PostSearchRequestDto
 import com.galaktionov.dto.UserRegistrationRequestDto
-import com.galaktionov.exception.AuthFailException
 import com.galaktionov.model.UserModel
 import com.galaktionov.services.FileService
 import com.galaktionov.services.PostService
@@ -55,7 +54,8 @@ class RoutingV1(private val postService: PostService, private val userService: U
                     }
                     post("/findById") {
                         val request = call.receive<PostSearchRequestDto>()
-                        val response = postService.addViews(request)
+                        val user = call.authentication.principal<UserModel>()
+                        val response = postService.addViews(request,user)
                         call.respond(response)
                     }
                     post {

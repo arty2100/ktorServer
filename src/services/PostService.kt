@@ -31,9 +31,9 @@ class PostService(private val repo: PostRepository) {
         return PostResponseDto.fromModel(repo.save(model, author))
     }
 
-    suspend fun addViews(request: PostSearchRequestDto): PostResponseDto {
+    suspend fun addViews(request: PostSearchRequestDto, user: UserModel?): PostResponseDto {
         val model = getById(request.id)
-        return PostResponseDto.fromModel(repo.addViews(model, request.userId))
+        return PostResponseDto.fromModel(repo.addViews(model, user!!.id))
     }
 
     suspend fun remove(item: PostModel, user: UserModel?) {

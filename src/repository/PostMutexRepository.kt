@@ -94,9 +94,9 @@ class PostMutexRepository : PostRepository {
 
     }
 
-    override suspend fun addViews(item: PostModel, userId: String): PostModel = mutex.withLock {
+    override suspend fun addViews(item: PostModel, userId: Long?): PostModel = mutex.withLock {
 
-        val newItem = if (!item.userIdList.contains(userId)) {
+        val newItem = if (userId!=null && !item.userIdList.contains(userId)) {
             val newList = item.userIdList.toMutableList().apply {
                 add(userId)
             }

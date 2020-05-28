@@ -23,13 +23,7 @@ class UserService(
             repo.getByUsername(username)
 
 
-    private suspend fun save(input: UserRegistrationRequestDto): UserModel = repo.save(UserModel(null, input.username, passwordEncoder.encode(input.password), null))
-
-
-    suspend fun getById(id: Long): UserResponseDto {
-        val model = repo.getById(id) ?: throw NotFoundException()
-        return UserResponseDto.fromModel(model)
-    }
+    private suspend fun save(input: UserRegistrationRequestDto): UserModel = repo.save(UserModel(null, input.username, passwordEncoder.encode(input.password)))
 
     suspend fun register(input: UserRegistrationRequestDto): UserResponseDto {
 
@@ -39,8 +33,7 @@ class UserService(
 
             val model = save(input)
             val token = tokenService.generate(model.id!!)
-            model.token = token
-            return UserResponseDto.fromModel(model)
+            return UserResponseDto.fromModel(token)
         }
     }
 
@@ -50,8 +43,7 @@ class UserService(
             throw PasswordChangeException("Wrong password!")
         }
         val token = tokenService.generate(model.id!!)
-        model.token = token
-        return UserResponseDto.fromModel(model)
+        return UserResponseDto.fromModel(token)
     }
 
     suspend fun changePassword(input: PasswordChangeRequestDto) {

@@ -17,7 +17,7 @@ data class PostModel(
         val advLink: String? = null,
         val companyImg: String? = null,
         var views: Int = 0,
-        val userIdList: MutableList<String>
+        val userIdList: MutableList<Long>
 ) {
     enum class POST_TYPE {
         VIDEO, TEXT, REPOST, EVENT, ADV
